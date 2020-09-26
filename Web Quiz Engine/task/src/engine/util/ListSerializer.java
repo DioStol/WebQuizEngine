@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Dionysios Stolis 9/26/2020 <dstolis@b-open.com>
+ * @author Dionysios Stolis 9/26/2020 <dstolis@gmail.com>
  */
 public class ListSerializer implements AttributeConverter<List<Completion>, String> {
 
