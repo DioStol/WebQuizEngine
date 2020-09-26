@@ -1,22 +1,24 @@
 package engine.controller;
 
 import engine.model.Answer;
+import engine.model.Completion;
 import engine.model.Question;
 import engine.model.User;
 import engine.service.QuizService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**
  * @author Dionysios Stolis <dionstol@gmail.com>
@@ -52,8 +54,8 @@ public class QuizController {
     }
 
     @PostMapping(path = "/{id}/solve")
-    public Answer checkAnswer(@PathVariable int id, @RequestBody Map<String, List<Integer>> body) {
-        return service.solve(id, body.get("answer"));
+    public Answer checkAnswer(@PathVariable int id, @RequestBody Map<String, List<Integer>> body, @AuthenticationPrincipal User user) {
+        return service.solve(id, body.get("answer"), user);
     }
 
     @DeleteMapping(path = "/{id}")
@@ -65,9 +67,12 @@ public class QuizController {
         service.deleteQuizById(id);
     }
 
-//    @GetMapping(path = "/completed", produces = APPLICATION_JSON_VALUE)
-//    public Page<CompletionDto> getCompletedQuizPage(Principal principal, Pageable pageable) {
-//        return service.findAllCompletedQuizzesAsPage(principal.getName(), pageable)
-//                .map(Utils::convertCompletionEntityToDto);
-//    }
+    @GetMapping("/completed")
+    public Page<Completion> getSolvedQuizzes(@RequestParam(required = false) Integer page, @AuthenticationPrincipal User user) {
+        Pageable pageable = PageRequest.of(page == null ? 0 : page, 10);
+        List<Completion> solvedQuizzes = user.getSolvedQuizzes();
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), solvedQuizzes.size());
+        return new PageImpl<>(user.getSolvedQuizzes().subList(start, end), pageable, solvedQuizzes.size());
+    }
 }

@@ -1,18 +1,20 @@
 package engine.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import engine.util.ListSerializer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Dionysios Stolis <dionstol@gmail.com>
@@ -31,7 +33,13 @@ public class User implements UserDetails {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
+    @JsonIgnore
+    @Convert(converter = ListSerializer.class)
+    @Column(columnDefinition="TEXT")
+    private List<Completion> completions;
+
     public User() {
+        completions = new ArrayList<>();
     }
 
     @Override
@@ -79,5 +87,13 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public List<Completion> getSolvedQuizzes() {
+        return completions;
+    }
+
+    public void setSolvedQuizzes(List<Completion> completions) {
+        this.completions = completions;
     }
 }
