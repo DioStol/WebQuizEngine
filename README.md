@@ -21,7 +21,7 @@ java -jar build/libs/*.jar
 ./gradlew bootRun
 ```
 
-By default, it runs on the port `8888` and works with the `quizdb` database in the user's home directory.
+By default, it runs on the port `7777` and works with the `quizdb` database in the user's home directory.
 
 ## Description
 
